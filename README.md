@@ -12,6 +12,8 @@ Un cluster de kubernetes en casa basado en microk8s de Canonical (Ubuntu)
  ---- Fuente: https://www.reddit.com/r/kubernetes/comments/g3z5sp/microk8s_with_certmanager_and_letsecncrypt/
 Fuente: https://cert-manager.io/docs/tutorials/acme/ingress/#step-7-deploy-a-tls-ingress-resource
 
+### Preparación del cluster
+
 Como paso previo debemos permitir el tráfico del puerto 80 y del puerto 443 hacia el host en el cual tenemos el cluster (de host único) de microk8s.
 
 1) Añadimos los addons necesarios n microk8s:
@@ -62,6 +64,29 @@ La resolución del nombre en Internet debe permitir alcanzar la IP pública del 
 
 Obviamente en el router debemos hacer que cualquier petición hacia el puerto 80 y 443 se encamine a la IP externa (privada) mostrada por el comando `kubectl get ingress`
 
+### Instalación de cert-manager
+
+Fuente: https://cert-manager.io/docs/installation/kubernetes/#installing-with-regular-manifests
+
+1) Instalar el CRD, cert-manager, namespace y webhook con una sola declaración YAML:
+```bash
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.2.0/cert-manager.yaml
+```
+o
+```bash
+kubectl apply -f certmanager/cert-manager.yml
+```
+
+2) Verificamos con la creación de un Issuer para probar. Una vez más, hay que personalizar el valor de dnsNames
+```bash
+kubectl apply -f certmanager/test-resources.yml
+kubectl describe certificate -n cert-manager-test
+```
+
+3) Eliminamos el Issuer de pruebas
+```bash
+kubectl delete -f test-resources.yaml
+```
 
 Opción de utilización de servicio ingress y opción con certificados:
 
