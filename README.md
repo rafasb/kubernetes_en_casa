@@ -43,26 +43,34 @@ kubectl --namespace default get services -o wide -w quickstart-ingress-nginx-con
 
 5.1) Desplegamos los pods
 ```bash
-kubectl apply -f ./ejemplo/deployment.yml
+kubectl apply -f ./ejemplo1/deployment.yml
 ```
 5.2) Desplegamos el servicio
 ```bash
-kubectl apply -f ./ejemplo/service.yml
+kubectl apply -f ./ejemplo1/service.yml
 ```
 5.3) Creamos el vínculo ingress para el servicio. OJO: Previamente hay que adecuar el nombre de dominio del host.
 
 ```bash
-kubectl create -f ./ejemplo/ingress.yml
+kubectl create -f ./ejemplo1/ingress.yml
 ```
 Para ver el resultado
 ```bash
 kubectl get ingress
 ```
-Es importante tener en consideración el resultado del comando `kubectl get ingress` debemos verificar que el nombre del host empleado en el fichero ./ejemplo/ingress.yml corresponde con la IP externa concedida o fallará el balanceo. 
+Es importante tener en consideración el resultado del comando `kubectl get ingress` debemos verificar que el nombre del host empleado en el fichero ./ejemplo1/ingress.yml corresponde con la IP externa concedida o fallará el balanceo. 
 
 La resolución del nombre en Internet debe permitir alcanzar la IP pública del router para obtener el certificado. Si internamente queremos testear el resultado, debemos hacer que la IP enterna del LoadBalancer sea resuelta con el mismo nombre empleado en el fichero. Por tanto tendremos una IP privada en el resultado del LoadBalancer y su correspondiente resolución dentro de nuestra LAN y una resolución con la IP pública de nuestro router. 
 
 Obviamente en el router debemos hacer que cualquier petición hacia el puerto 80 y 443 se encamine a la IP externa (privada) mostrada por el comando `kubectl get ingress`
+
+5.4) Verificación y borrado
+
+*Podemos verificar el funcionamiento accediendo a la url http://\<tu_propio_FQDN\>*
+
+kubectl delete -f ejemplo1/ingress.yml
+kubectl delete -f ejemplo1/service.yml
+kubectl delete -f ejemplo1/deployment.yml
 
 ### Instalación de cert-manager
 
@@ -85,8 +93,21 @@ kubectl describe certificate -n cert-manager-test
 
 3) Eliminamos el Issuer de pruebas
 ```bash
-kubectl delete -f test-resources.yaml
+kubectl delete -f certmanager/test-resources.yml
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Opción de utilización de servicio ingress y opción con certificados:
 
