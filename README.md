@@ -96,6 +96,19 @@ kubectl describe certificate -n cert-manager-test
 kubectl delete -f certmanager/test-resources.yml
 ```
 
+### Despliegue de certificados con Issuer
+
+Se empleará Issuer (junto con el namespace) y no ClusterIssuer, para certificados empleados en usos no generales al cluster.
+Modifica el fichero issuer/staging-issuer.yml con el correo electrónico apropiado.
+
+```bash
+kubectl apply -f issuer/staging-issuer.yml
+```
+
+Se puede verificar el estado mediante:
+```bash
+kubectl describe issuer letsencrypt-staging
+```
 
 
 
