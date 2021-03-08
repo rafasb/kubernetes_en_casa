@@ -101,6 +101,8 @@ kubectl delete -f certmanager/test-resources.yml
 Se empleará Issuer (junto con el namespace) y no ClusterIssuer, para certificados empleados en usos no generales al cluster.
 Modifica el fichero issuer/staging-issuer.yml con el correo electrónico apropiado.
 
+TODO : Crear cuenta asociada al correo.
+
 ```bash
 kubectl apply -f issuer/staging-issuer.yml
 ```
