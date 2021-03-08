@@ -9,10 +9,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - rsantisteban.duckdns.org
+    - www.example.com
     secretName: quickstart-example-tls
   rules:
-  - host: rsantisteban.duckdns.org
+  - host: www.example.com
     http:
       paths:
       - path: /
