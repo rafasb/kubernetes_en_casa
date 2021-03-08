@@ -36,6 +36,12 @@ Veamos el estado del despliegue (Puede tardar un rato):
 kubectl --namespace default get services -o wide -w quickstart-ingress-nginx-controller
 ```
 
+5) Pongamos en marcha un ejemplo de web llamada *kuard*
+5.1) Desplegamos los pods
+kubectl apply -f ./ejemplo/deployment.yml
+5.2) Desplegamos el servicio
+kubectl apply -f ./ejemplo/service.yml
+
 
 
 
