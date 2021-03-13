@@ -118,9 +118,13 @@ kubectl describe issuer letsencrypt-staging [--namespace default]
 ```
 
 
+## Gestionar el cluster remotamente LENS
 
+El fichero de configuración apropiado para gestionar el cluster desde LENS es el siguinte:
 
+`/var/snap/microk8s/current/credentials/client.config`
 
+Será necesario adaptar la IP del campo server, cambiado 127.0.0.1 por la IP del host.
 
 
 
