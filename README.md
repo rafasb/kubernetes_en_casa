@@ -14,12 +14,15 @@ Fuente: https://cert-manager.io/docs/tutorials/acme/ingress/#step-7-deploy-a-tls
 
 ### Preparación del cluster
 
-Como paso previo debemos permitir el tráfico del puerto 80 y del puerto 443 hacia el host en el cual tenemos el cluster (de host único) de microk8s.
+Como paso previo debemos permitir el tráfico del puerto 80 y del puerto 443 hacia el host en el cual tenemos el cluster (de host único) de microk8s. Esto se debe realizar hacia la IP que nos indicará la ejecución de Ingress más adelante.
 
-1) Añadimos los addons necesarios n microk8s:
+1) Añadimos los addons necesarios en microk8s:
 ```bash
 microk8s enable helm3 ingress
+microk8s enable dns:<IP_DNS_INTERNO>
 ```
+
+Usaremos <IP_DNS_INTERNO> para permitir la resolución de nombres personalizada con IPs privadas. Se puede usar *microk8s enable dns* si no es necesario tener una resolución interna de DNS.
 
 2) Instalamos el repositorio de la herramienta de balanceo
 ```bash
@@ -30,10 +33,12 @@ microk8s helm3 repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 ```bash
 microk8s helm3 install quickstart ingress-nginx/ingress-nginx
 ```
+
 4) Para que el balanceador sea capaz de obtener IPs, como no estamos en un servicio de nube, debemos instalar un proveedor de direcciones IP, en este caso IPs privadas de nuesta LAN. Será necesario conocer un rango de direcciones IP disponibles en la LAN que no se entreguen en el DHCP del router. En mi caso 192.168.1.10-20.
 ```bash
 microk8s enable metallb
 ```
+
 Veamos el estado del despliegue (Puede tardar un rato): 
 ```bash
 kubectl --namespace default get services -o wide -w quickstart-ingress-nginx-controller
@@ -50,7 +55,6 @@ kubectl apply -f ./ejemplo1/deployment.yml
 kubectl apply -f ./ejemplo1/service.yml
 ```
 5.3) Creamos el vínculo ingress para el servicio. OJO: Previamente hay que adecuar el nombre de dominio del host.
-
 ```bash
 kubectl create -f ./ejemplo1/ingress.yml
 ```
@@ -60,7 +64,7 @@ kubectl get ingress
 ```
 Es importante tener en consideración el resultado del comando `kubectl get ingress` debemos verificar que el nombre del host empleado en el fichero ./ejemplo1/ingress.yml corresponde con la IP externa concedida o fallará el balanceo. 
 
-La resolución del nombre en Internet debe permitir alcanzar la IP pública del router para obtener el certificado. Si internamente queremos testear el resultado, debemos hacer que la IP enterna del LoadBalancer sea resuelta con el mismo nombre empleado en el fichero. Por tanto tendremos una IP privada en el resultado del LoadBalancer y su correspondiente resolución dentro de nuestra LAN y una resolución con la IP pública de nuestro router. 
+La resolución del nombre en Internet debe permitir alcanzar la IP pública del router para obtener el certificado. Si internamente queremos testear el resultado, debemos hacer que la IP enterna del LoadBalancer sea resuelta con el mismo nombre empleado en el fichero. Por tanto tendremos una IP privada en el resultado del LoadBalancer y su correspondiente resolución dentro de nuestra LAN y una resolución externa (p.e. DuckDNS) con la IP pública de nuestro router. 
 
 Obviamente en el router debemos hacer que cualquier petición hacia el puerto 80 y 443 se encamine a la IP externa (privada) mostrada por el comando `kubectl get ingress`
 
@@ -98,18 +102,19 @@ kubectl delete -f certmanager/test-resources.yml
 
 ### Despliegue de certificados con Issuer
 
-Se empleará Issuer (junto con el namespace) y no ClusterIssuer, para certificados empleados en usos no generales al cluster.
+Se empleará Issuer (junto con el namespace), y no ClusterIssuer, para certificados empleados en usos no generales al cluster.
+Emplearemos ClusterIssuer para certificados que pueden ser empleados por los namespaces del cluster.
 Modifica el fichero issuer/staging-issuer.yml con el correo electrónico apropiado.
 
 TODO : Crear cuenta asociada al correo.
 
 ```bash
-kubectl apply -f issuer/staging-issuer.yml
+kubectl apply -f issuer/staging-issuer.yml [--namespace default]
 ```
 
 Se puede verificar el estado mediante:
 ```bash
-kubectl describe issuer letsencrypt-staging
+kubectl describe issuer letsencrypt-staging [--namespace default]
 ```
 
 
