@@ -18,7 +18,7 @@ metadata:
   namespace: cert-manager-test
 spec:
   dnsNames:
-    - rsantisteban.duckdns.org
+    - www.example.com
   secretName: selfsigned-cert-tls
   issuerRef:
     name: test-selfsigned
