@@ -117,8 +117,40 @@ Se puede verificar el estado mediante:
 kubectl describe issuer letsencrypt-staging [--namespace default]
 ```
 
+Si no surgen errores podemos avanzar el en proceso. Volvemos al ejemplo1 para generar un certificado para el servicio *kuard*. 
 
-## Gestionar el cluster remotamente LENS
+1) El primer paso es editar el fichero ingress.yml de nuestro servicio ejemplo, descomentando la línea de *annotations* que hace referencia a *letsencrypt-staging*.
+
+2) Visualizamos el estado del proceso mediante el comando `kubectl describe certificate quickstart-example-tls`.
+
+3) Visualizamos el estado del certificado mediante `kubectl describe secret quickstart-example-tls`.
+
+Si ha funcionado correctamente el último comando nos muestra que ha creado un Secret con dos archivos tls.crt y tls.key. A partir de este momento podemos optar por cambiar del Issuer letsencrypt-staging al Issuer letsencrypt-prod con los siguientes pasos. Hay que recordar editar el fichero ingress-tls-final.yml con los valores correctos en los campos *hosts* y *host* 
+
+```bash
+kubectl apply -f issuer/production-issuer.yml [--namespace default]
+kubectl describe issuer letsencrypt-prod [--namespace default]
+kubectl apply -f ejemplo1/ingress-tls-final.yml 
+kubectl delete secret quickstart-example-tls
+```
+
+Cuando ejecutamos el borrado del Secret *quickstart-example-tls* se lanza de nuevo el proceso de solicitud de nuevo certificado. Esto lo podemos ver con el comando:
+
+`kubectl describe certificate quickstart-example-tls`
+
+En este punto es importante verificar que en *DNS names* tenemos el nombre del host correctamente. En caso contrario hay que editar *ejemplo1/ingress-tls-final.yml* y corregir el host.
+
+Veamos el estado de la solicitud con el comando siguiente. Usamos el tabulador para identificar las ordenes. En mi caso, debido a un error tenía dos. Localizamos la correcta y en eventos debe aparecer *Order completed successfully*. Podrá tardar algo de tiempo. Hay que verificar que no muestra errores.
+
+`kubectl describe order quickstart-example-tls-<TAB><TAB>` 
+
+Finalmente verificamos que el certificado ha sido generado correctamente con la siguiente instrucción:
+
+`kubectl describe certificate quickstart-example-tls`
+
+El resultado debería permitirnos acceder a la aplicación *kuard* usando HTTPS y con el nombre FQDN que hemos empleado, sin generar ninguna alerta de certificado.
+
+## Gestionar el cluster remotamente: LENS
 
 El fichero de configuración apropiado para gestionar el cluster desde LENS es el siguinte:
 
